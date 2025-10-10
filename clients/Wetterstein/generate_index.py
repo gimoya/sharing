@@ -9,6 +9,44 @@ import sys
 from pathlib import Path
 
 
+def format_file_size(size_bytes):
+    """
+    Format file size in bytes to human-readable format.
+    
+    Args:
+        size_bytes (int): File size in bytes
+        
+    Returns:
+        str: Formatted file size (e.g., "1.2 MB", "456 KB")
+    """
+    if size_bytes == 0:
+        return "0 B"
+    
+    # Define size units and their byte equivalents
+    size_units = [
+        ("B", 1),
+        ("KB", 1024),
+        ("MB", 1024**2),
+        ("GB", 1024**3),
+        ("TB", 1024**4)
+    ]
+    
+    # Find the appropriate unit
+    for unit, unit_size in reversed(size_units):
+        if size_bytes >= unit_size:
+            # Calculate the size in the current unit
+            size_in_unit = size_bytes / unit_size
+            # Format with appropriate decimal places
+            if unit == "B":
+                return f"{int(size_in_unit)} {unit}"
+            elif size_in_unit >= 100:
+                return f"{int(size_in_unit)} {unit}"
+            else:
+                return f"{size_in_unit:.1f} {unit}"
+    
+    return f"{size_bytes} B"
+
+
 def generate_index_html(folder_path=".", output_file="index.html"):
     """
     Generate an index.html file listing all files and directories in the specified folder.
@@ -55,8 +93,9 @@ def generate_index_html(folder_path=".", output_file="index.html"):
     background: #ffffff;
   }}
   li + li {{ border-top: 1px solid #e2e8f0; }}
-  a {{ display: block; padding: clamp(8px, 2vw, 12px); color: #0f172a; text-decoration: none; }}
+  a {{ display: flex; justify-content: space-between; align-items: center; padding: clamp(8px, 2vw, 12px); color: #0f172a; text-decoration: none; }}
   a:hover {{ background: #f1f5f9; }}
+  .file-size {{ color: #64748b; font-size: 0.9em; margin-left: 12px; }}
   @media (max-width: 768px) {{
     html {{ font-size: 14px; }}
     body {{ margin: 16px; }}
@@ -72,7 +111,18 @@ def generate_index_html(folder_path=".", output_file="index.html"):
     for item in items:
         # Determine if it's a directory (add trailing slash)
         display_name = item.name + "/" if item.is_dir() else item.name
-        html_content += f'  <li><a href="{item.name}">{display_name}</a></li>\n'
+        
+        # Get file size for files (directories don't have meaningful sizes)
+        if item.is_file():
+            try:
+                file_size = item.stat().st_size
+                size_display = f'<span class="file-size">{format_file_size(file_size)}</span>'
+            except (OSError, PermissionError):
+                size_display = '<span class="file-size">-</span>'
+        else:
+            size_display = '<span class="file-size">-</span>'
+        
+        html_content += f'  <li><a href="{item.name}">{display_name}{size_display}</a></li>\n'
     
     html_content += "</ul>\n"
     
