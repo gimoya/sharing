@@ -81,9 +81,9 @@ def generate_index_html(folder_path=".", output_file="index.html"):
 <meta charset="utf-8">
 <title>Index of /{folder_name}</title>
 <style>
-  html {{ font-family: Consolas, "Courier New", monospace; font-size: clamp(14px, 2.5vw, 18px); }}
-  body {{ margin: clamp(16px, 4vw, 24px); color: #0f172a; background: #f8fafc; }}
-  h1 {{ font-size: clamp(18px, 3.5vw, 20px); margin: 0 0 clamp(8px, 2vw, 12px); font-weight: 600; }}
+  html {{ font-family: Consolas, "Courier New", monospace; font-size: clamp(20px, 4vw, 20px); }}
+  body {{ margin: clamp(12px, 3vw, 24px); color: #0f172a; background: #f8fafc; }}
+  h1 {{ font-size: clamp(24px, 5vw, 28px); margin: 0 0 clamp(12px, 2.5vw, 16px); font-weight: 600; }}
   ul {{
     list-style: none;
     padding: 0;
@@ -93,15 +93,9 @@ def generate_index_html(folder_path=".", output_file="index.html"):
     background: #ffffff;
   }}
   li + li {{ border-top: 1px solid #e2e8f0; }}
-  a {{ display: flex; justify-content: space-between; align-items: center; padding: clamp(8px, 2vw, 12px); color: #0f172a; text-decoration: none; }}
+  a {{ display: flex; justify-content: space-between; align-items: center; padding: clamp(14px, 3vw, 18px); color: #0f172a; text-decoration: none; }}
   a:hover {{ background: #f1f5f9; }}
-  .file-size {{ color: #64748b; font-size: 0.9em; margin-left: 12px; }}
-  @media (max-width: 768px) {{
-    html {{ font-size: 14px; }}
-    body {{ margin: 16px; }}
-    h1 {{ font-size: 18px; margin-bottom: 8px; }}
-    a {{ padding: 8px; }}
-  }}
+  .file-size {{ color: #64748b; font-size: clamp(0.8em, 2.5vw, 0.9em); margin-left: 12px; }}
 </style>
 <h1>Index of /{folder_name}</h1>
 <ul>
