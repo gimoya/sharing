@@ -7,6 +7,7 @@ in the current folder, matching the existing style with responsive font sizing.
 import os
 import sys
 from pathlib import Path
+from datetime import datetime
 
 
 def format_file_size(size_bytes):
@@ -45,6 +46,23 @@ def format_file_size(size_bytes):
                 return f"{size_in_unit:.1f} {unit}"
     
     return f"{size_bytes} B"
+
+
+def format_modification_time(timestamp):
+    """
+    Format modification timestamp to human-readable format.
+    
+    Args:
+        timestamp (float): Unix timestamp
+        
+    Returns:
+        str: Formatted date and time with parentheses (e.g., "(2024-01-15 14:30)")
+    """
+    try:
+        dt = datetime.fromtimestamp(timestamp)
+        return f"({dt.strftime('%Y-%m-%d %H:%M')})"
+    except (ValueError, OSError):
+        return "(-)"
 
 
 def generate_index_html(folder_path=".", output_file="index.html"):
@@ -95,7 +113,9 @@ def generate_index_html(folder_path=".", output_file="index.html"):
   li + li {{ border-top: 1px solid #e2e8f0; }}
   a {{ display: flex; justify-content: space-between; align-items: center; padding: clamp(14px, 3vw, 18px); color: #0f172a; text-decoration: none; }}
   a:hover {{ background: #f1f5f9; }}
-  .file-size {{ color: #64748b; font-size: clamp(0.8em, 2.5vw, 0.9em); margin-left: 12px; }}
+  .file-info {{ display: flex; gap: 20px; color: #64748b; font-size: clamp(0.8em, 2.5vw, 0.9em); }}
+  .file-info span:first-child {{ min-width: 140px; text-align: left; }}
+  .file-info span:last-child {{ min-width: 80px; text-align: left; }}
 </style>
 <h1>Index of /{folder_name}</h1>
 <ul>
@@ -106,17 +126,26 @@ def generate_index_html(folder_path=".", output_file="index.html"):
         # Determine if it's a directory (add trailing slash)
         display_name = item.name + "/" if item.is_dir() else item.name
         
-        # Get file size for files (directories don't have meaningful sizes)
-        if item.is_file():
-            try:
-                file_size = item.stat().st_size
-                size_display = f'<span class="file-size">{format_file_size(file_size)}</span>'
-            except (OSError, PermissionError):
-                size_display = '<span class="file-size">-</span>'
-        else:
-            size_display = '<span class="file-size">-</span>'
+        # Get file info (size and modification time)
+        try:
+            stat_info = item.stat()
+            file_size = stat_info.st_size if item.is_file() else 0
+            mod_time = stat_info.st_mtime
+            
+            if item.is_file():
+                size_display = format_file_size(file_size)
+            else:
+                size_display = "-"
+            
+            time_display = format_modification_time(mod_time)
+            
+        except (OSError, PermissionError):
+            size_display = "-"
+            time_display = "-"
         
-        html_content += f'  <li><a href="{item.name}">{display_name}{size_display}</a></li>\n'
+        file_info = f'<span class="file-info"><span>{time_display}</span><span>{size_display}</span></span>'
+        
+        html_content += f'  <li><a href="{item.name}">{display_name}{file_info}</a></li>\n'
     
     html_content += "</ul>\n"
     
