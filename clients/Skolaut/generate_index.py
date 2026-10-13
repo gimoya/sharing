@@ -117,10 +117,21 @@ def generate_index_html(folder_path=".", output_file="index.html"):
   .file-info {{ display: flex; flex: 0 0 auto; gap: 20px; color: #64748b; font-size: clamp(0.8em, 2.5vw, 0.9em); }}
   .file-info span:first-child {{ min-width: 140px; text-align: left; }}
   .file-info span:last-child {{ min-width: 80px; text-align: left; }}
+  p {{ margin: 0 0 clamp(12px, 2.5vw, 16px); }}
+  #dl {{
+    font: inherit;
+    font-size: 0.85em;
+    color: #0f172a;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+  }}
+  #dl:hover {{ background: #f1f5f9; }}
 </style>
 <h1>Index of /{folder_name}</h1>
 <p><button type="button" id="dl">Download all</button></p>
-<ul>
 <ul>
 """
     
@@ -152,20 +163,20 @@ def generate_index_html(folder_path=".", output_file="index.html"):
     
     html_content += "</ul>\n"
     html_content += """<script>
-    document.getElementById("dl").onclick = () => {
-    for (const a of document.querySelectorAll("ul a")) {
-        const name = a.querySelector(".name").title;
-        if (name.endsWith("/")) continue;
-        const el = document.createElement("a");
-        el.href = a.href;
-        el.download = name;
-        document.body.appendChild(el);
-        el.click();
-        el.remove();
-    }
-    };
-    </script>
-    """
+document.getElementById("dl").onclick = () => {
+  for (const a of document.querySelectorAll("ul a")) {
+    const name = a.querySelector(".name").title;
+    if (name.endsWith("/")) continue;
+    const el = document.createElement("a");
+    el.href = a.href;
+    el.download = name;
+    document.body.appendChild(el);
+    el.click();
+    el.remove();
+  }
+};
+</script>
+"""
     
     # Write the HTML file
     output_path = folder / output_file
