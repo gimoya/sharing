@@ -111,13 +111,16 @@ def generate_index_html(folder_path=".", output_file="index.html"):
     background: #ffffff;
   }}
   li + li {{ border-top: 1px solid #e2e8f0; }}
-  a {{ display: flex; justify-content: space-between; align-items: center; padding: clamp(14px, 3vw, 18px); color: #0f172a; text-decoration: none; }}
+  a {{ display: flex; align-items: center; gap: 16px; padding: clamp(14px, 3vw, 18px); color: #0f172a; text-decoration: none; min-width: 0; }}
   a:hover {{ background: #f1f5f9; }}
-  .file-info {{ display: flex; gap: 20px; color: #64748b; font-size: clamp(0.8em, 2.5vw, 0.9em); }}
+  .name {{ flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+  .file-info {{ display: flex; flex: 0 0 auto; gap: 20px; color: #64748b; font-size: clamp(0.8em, 2.5vw, 0.9em); }}
   .file-info span:first-child {{ min-width: 140px; text-align: left; }}
   .file-info span:last-child {{ min-width: 80px; text-align: left; }}
 </style>
 <h1>Index of /{folder_name}</h1>
+<p><button type="button" id="dl">Download all</button></p>
+<ul>
 <ul>
 """
     
@@ -145,9 +148,24 @@ def generate_index_html(folder_path=".", output_file="index.html"):
         
         file_info = f'<span class="file-info"><span>{time_display}</span><span>{size_display}</span></span>'
         
-        html_content += f'  <li><a href="{item.name}">{display_name}{file_info}</a></li>\n'
+        html_content += f'  <li><a href="{item.name}"><span class="name" title="{display_name}">{display_name}</span>{file_info}</a></li>\n'
     
     html_content += "</ul>\n"
+    html_content += """<script>
+    document.getElementById("dl").onclick = () => {
+    for (const a of document.querySelectorAll("ul a")) {
+        const name = a.querySelector(".name").title;
+        if (name.endsWith("/")) continue;
+        const el = document.createElement("a");
+        el.href = a.href;
+        el.download = name;
+        document.body.appendChild(el);
+        el.click();
+        el.remove();
+    }
+    };
+    </script>
+    """
     
     # Write the HTML file
     output_path = folder / output_file
